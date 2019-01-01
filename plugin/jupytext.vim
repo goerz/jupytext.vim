@@ -66,17 +66,17 @@
 "    The following settings in your ~/.vimrc may be used to configure the
 "    plugin:
 "
-"    *  g:jupytext_enable=1
+"    *  let g:jupytext_enable = 1
 "
 "       You may disable the automatic conversion of ipynb files (i.e.,
 "       deactivate this plugin) by setting this to 0.
 "
-"    *  g:jupytext_fmt='md'
+"    *  let g:jupytext_fmt = 'md'
 "
 "       One of 'md' or 'py'. The format to which to convert the ipynb data,
 "       and extension of the linked text file.
 "
-"    *  g:jupytext_filetype_map = {'md': 'markdown', 'py': 'python', }
+"    *  let g:jupytext_filetype_map = {'md': 'markdown', 'py': 'python', }
 "
 "       A mapping of g:jupytext_fmt to the filetype that should be used for
 "       the buffer (:help filetype). This determines the syntax highlighting.
