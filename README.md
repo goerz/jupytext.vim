@@ -31,11 +31,15 @@ On closing the buffer, the temporary `notebook.md` will be deleted. If `notebook
 
 ## Configuration
 
-The following settings in your `~/.vimrc` may be used to configure the plugin:
+The plugin has the following settings. If you want to override the default values shown below, you can define the corresponding variables in your `~/.vimrc`.
 
 *   `let g:jupytext_enable = 1`
 
     You may disable the automatic conversion of `ipynb` files (i.e., deactivate this plugin) by setting this to 0.
+
+*   `let g:jupytext_command = 'jupytext'`
+
+    The CLI `jupytext` command to use. You may include the full path to point to a specific `jupytext` exectuable not in your default `$PATH`.
 
 *   `let g:jupytext_fmt = 'md'`
 

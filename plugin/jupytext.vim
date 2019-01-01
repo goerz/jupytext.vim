@@ -63,13 +63,19 @@
 "    preserved when closing the buffer.
 "
 " Configuration:
-"    The following settings in your ~/.vimrc may be used to configure the
-"    plugin:
+"    The plugin has the following settings. If you want to override the
+"    default values shown below, you can define the corresponding variables in
+"    your ~/.vimrc.
 "
 "    *  let g:jupytext_enable = 1
 "
 "       You may disable the automatic conversion of ipynb files (i.e.,
 "       deactivate this plugin) by setting this to 0.
+"
+"    *  let g:jupytext_command = 'jupytext'
+"
+"       The CLI jupytext command to use. You may include the full path to
+"       point to a specific `jupytext` exectuable not in your default $PATH.
 "
 "    *  let g:jupytext_fmt = 'md'
 "
@@ -200,6 +206,10 @@ if !exists('g:jupytext_enable')
     let g:jupytext_enable = 1
 endif
 
+if !exists('g:jupytext_command')
+    let g:jupytext_command = 'jupytext'
+endif
+
 if !exists('g:jupytext_fmt')
     let g:jupytext_fmt = 'md'
 endif
@@ -236,9 +246,9 @@ function s:read_from_ipynb(bufread)
     call s:debugmsg("jupytext_file exists: ".b:jupytext_file_exists)
     if (l:filename_exists && !b:jupytext_file_exists)
         call s:debugmsg("Generate file ".b:jupytext_file)
-        let l:cmd = "!jupytext --to=".g:jupytext_fmt
-                    \ . " --output=".shellescape(b:jupytext_file) . " "
-                    \ . shellescape(l:filename)
+        let l:cmd = "!".g:jupytext_command." --to=".g:jupytext_fmt
+        \         . " --output=".shellescape(b:jupytext_file) . " "
+        \         . shellescape(l:filename)
         call s:debugmsg("cmd: ".l:cmd)
         silent execute l:cmd
         if v:shell_error
@@ -321,9 +331,9 @@ function s:write_to_ipynb() abort
     call s:debugmsg("overwriting ".fnameescape(b:jupytext_file))
     execute "write! ".fnameescape(b:jupytext_file)
     call s:debugmsg("Updating notebook from ".b:jupytext_file)
-    let l:cmd = "!jupytext --from=" . g:jupytext_fmt . " --update "
-                \ . "--to=ipynb --output=".fnameescape(filename)." "
-                \ . shellescape(b:jupytext_file)
+    let l:cmd = "!".g:jupytext_command." --from=" . g:jupytext_fmt
+    \         . " --to=ipynb --output=".fnameescape(filename)
+    \         . " --update " . shellescape(b:jupytext_file)
     call s:debugmsg("cmd: ".l:cmd)
     silent execute l:cmd
     if v:shell_error
