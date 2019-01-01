@@ -159,7 +159,7 @@ function s:read_from_ipynb(bufread)
         set undolevels=-1
         silent 1delete
         let &undolevels = levels
-        silent execute "autocmd BufEnter <buffer> redraw | echo fnamemodify(b:jupytext_file, ':.').' via jupytertext.'"
+        silent execute "autocmd BufEnter <buffer> redraw | echo fnamemodify(b:jupytext_file, ':.').' via jupytext.'"
     else
         " remove the temporary file
         call delete(expand(fnameescape(b:jupytext_file)))
