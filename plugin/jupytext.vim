@@ -115,21 +115,26 @@ augroup END
 
 function s:read_from_ipynb(bufread)
     " The bufread argument specifies whether this was called due to BufReadCmd
-    let filename = resolve(expand("<afile>:p"))
-    let fileroot = fnamemodify(filename, ':r')
+    let l:filename = resolve(expand("<afile>:p"))
+    let l:fileroot = fnamemodify(l:filename, ':r')
     if a:bufread
-        let b:jupytext_file = fnameescape(fileroot) . "." . g:jupytext_fmt
+        let b:jupytext_file = l:fileroot . "." . g:jupytext_fmt
         let b:jupytext_file_exists = filereadable(b:jupytext_file)
     else
-        let b:jupytext_file = s:tmpfilename(fileroot, g:jupytext_fmt)
+        let b:jupytext_file = s:tmpfilename(l:fileroot, g:jupytext_fmt)
         let b:jupytext_file_exists = 0
     endif
-    "echomsg "DBG: File exists:".b:jupytext_file_exists
-    if (filereadable(l:filename) && !b:jupytext_file_exists)
+    let l:filename_exists = filereadable(l:filename)
+    "echomsg "DBG: filename: ".l:filename
+    "echomsg "DBG: filename exists: ".l:filename_exists
+    "echomsg "DBG: jupytext_file: ".b:jupytext_file
+    "echomsg "DBG: jupytext_file exists: ".b:jupytext_file_exists
+    if (l:filename_exists && !b:jupytext_file_exists)
         "echomsg "DBG: Generate file ".b:jupytext_file
         let l:cmd = "!jupytext --to=".g:jupytext_fmt
-                    \ . " --output=".fnameescape(b:jupytext_file) . " "
-                    \ . shellescape(filename)
+                    \ . " --output=".shellescape(b:jupytext_file) . " "
+                    \ . shellescape(l:filename)
+        "echomsg "DBG: cmd: ".l:cmd
         silent execute l:cmd
         if v:shell_error
             echoerr l:cmd.": ".v:shell_error
@@ -189,6 +194,7 @@ function s:write_to_ipynb() abort
     let l:cmd = "!jupytext --from=" . g:jupytext_fmt . " --update "
                 \ . "--to=ipynb --output=".fnameescape(filename)." "
                 \ . shellescape(b:jupytext_file)
+    "echomsg "DBG: cmd: ".l:cmd
     silent execute l:cmd
     if v:shell_error
         echoerr l:cmd.": ".v:shell_error
