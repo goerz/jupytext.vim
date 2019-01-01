@@ -8,8 +8,9 @@ This is a successor to the [`ipynb_notedown.vim` plugin][5].
 
 ## Installation
 
-1.  Copy the `jupytext.vim` script to your vim plugin directory (e.g. `$HOME/.vim/plugin`). Refer to `:help add-plugin`, `:help add-global-plugin` and `:help runtimepath` for more details about Vim plugins.
-2.  Restart Vim.
+1.  Make sure that you have the `jupytext` CLI program installed (`pip install jupytext`).
+2.  Copy the `jupytext.vim` script to your vim plugin directory (e.g. `$HOME/.vim/plugin`). Refer to `:help add-plugin`, `:help add-global-plugin` and `:help runtimepath` for more details about Vim plugins.
+3.  Restart Vim.
 
 
 ## Usage

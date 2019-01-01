@@ -29,11 +29,13 @@
 "    USE OR OTHER DEALINGS IN THE SOFTWARE.
 "
 " Installation:
-"    1. Copy the jupytext.vim script to your vim plugin directory (e.g.
+"    1. Make sure that you have the jupytext CLI program installed
+"       (`pip install jupytext`).
+"    2. Copy the jupytext.vim script to your vim plugin directory (e.g.
 "       $HOME/.vim/plugin).  Refer to ':help add-plugin', ':help
 "       add-global-plugin' and ':help runtimepath' for more details about Vim
 "       plugins.
-"    2. Restart Vim.
+"    3. Restart Vim.
 "
 " Usage:
 "    When you open a Jupyter Notebook (*.ipynb) file, it is automatically
