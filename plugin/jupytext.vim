@@ -73,16 +73,126 @@
 "
 "    *  let g:jupytext_fmt = 'md'
 "
-"       One of 'md' or 'py'. The format to which to convert the ipynb data,
-"       and extension of the linked text file.
+"       The format to which to convert the ipynb data. This can be any format
+"       that the jupytext utility accepts for its `--to` parameter (see
+"       `jupytext --help`), except for 'notebook' and 'ipynb'.
 "
-"    *  let g:jupytext_filetype_map = {'md': 'markdown', 'py': 'python', }
+"    *  let g:jupytext_filetype_map = {}
 "
 "       A mapping of g:jupytext_fmt to the filetype that should be used for
 "       the buffer (:help filetype). This determines the syntax highlighting.
+"       You may use this setting to override the default filetype. For
+"       example, to use the 'pandoc' filetype instead of the default
+"       'markdown' for the 'md' fmt, define
+"
+"           let g:jupytext_filetype_map = {'md': 'pandoc'}
+"
+"    *  let g:jupytext_print_debug_msgs = 0
+"
+"       If set to 1, print debug messages while running the plugin (view with
+"       :messages)
 
 if exists("loaded_jupytext") || &cp || exists("#BufReadCmd#*.ipynb")
     finish
+endif
+
+
+" for all the formates that jupytext takes for --to, the filetype that vim
+" should use (this determines syntax highlighting)
+let s:jupytext_filetype_map = {
+\   'rmarkdown': 'rmarkdown',
+\   'markdown': 'markdown',
+\   'python': 'python',
+\   'R': 'r',
+\   'julia': 'julia',
+\   'c++': 'cpp',
+\   'scheme': 'scheme',
+\   'bash': 'sh',
+\   'md': 'markdown',
+\   'Rmd': 'rmarkdown',
+\   'r': 'r',
+\   'py': 'py',
+\   'jl': 'jl',
+\   'cpp': 'cpp',
+\   'ss': 'ss',
+\   'sh': 'sh',
+\   'md:markdown': 'markdown',
+\   'Rmd:rmarkdown': 'rmarkdown',
+\   'r:spin': 'r',
+\   'R:spin': 'r',
+\   'py:light': 'python',
+\   'R:light': 'r',
+\   'r:light': 'r',
+\   'jl:light': 'julia',
+\   'cpp:light': 'cpp',
+\   'ss:light': 'scheme',
+\   'sh:light': 'sh',
+\   'py:percent': 'python',
+\   'R:percent': 'r',
+\   'r:percent': 'r',
+\   'jl:percent': 'julia',
+\   'cpp:percent': 'cpp',
+\   'ss:percent': 'scheme',
+\   'sh:percent': 'sh',
+\   'py:sphinx': 'python',
+\   'py:sphinx-rst2md': 'python',
+\ }
+
+
+" for all the formates that jupytext takes for --to, the file extension that
+" should be used for the linked file
+let s:jupytext_extension_map = {
+\   'rmarkdown': 'Rmd',
+\   'markdown': 'md',
+\   'python': 'py',
+\   'julia': 'jl',
+\   'c++': 'cpp',
+\   'scheme': 'ss',
+\   'bash': 'sh',
+\   'md': 'md',
+\   'Rmd': 'Rmd',
+\   'r': 'r',
+\   'R': 'r',
+\   'py': 'py',
+\   'jl': 'jl',
+\   'cpp': 'cpp',
+\   'ss': 'ss',
+\   'sh': 'sh',
+\   'md:markdown': 'md',
+\   'Rmd:rmarkdown': 'Rmd',
+\   'r:spin': 'r',
+\   'R:spin': 'r',
+\   'py:light': 'py',
+\   'R:light': 'r',
+\   'r:light': 'r',
+\   'jl:light': 'jl',
+\   'cpp:light': 'cpp',
+\   'ss:light': 'ss',
+\   'sh:light': 'sh',
+\   'py:percent': 'py',
+\   'R:percent': 'R',
+\   'r:percent': 'r',
+\   'jl:percent': 'jl',
+\   'cpp:percent': 'cpp',
+\   'ss:percent': 'ss',
+\   'sh:percent': 'sh',
+\   'py:sphinx': 'py',
+\   'py:sphinx-rst2md': 'py',
+\ }
+
+
+if !exists('g:jupytext_print_debug_msgs')
+    let g:jupytext_print_debug_msgs = 0
+endif
+function s:debugmsg(msg)
+    if g:jupytext_print_debug_msgs
+        echomsg("DBG: ".a:msg)
+    endif
+endfunction
+
+
+if !exists('g:jupytext_filetype_map')
+    call s:debugmsg("Setting g:jupytext_filetype_map to default")
 endif
 
 
@@ -94,16 +204,11 @@ if !exists('g:jupytext_fmt')
     let g:jupytext_fmt = 'md'
 endif
 
-if !exists('g:jupytext_filetype_map')
-    let g:jupytext_filetype_map = {
-\      'md': 'markdown',
-\      'py': 'python',
-\   }
-endif
-
 if !g:jupytext_enable
     finish
 endif
+
+
 augroup ipynb
     " Remove all ipynb autocommands
     au!
@@ -117,24 +222,24 @@ function s:read_from_ipynb(bufread)
     " The bufread argument specifies whether this was called due to BufReadCmd
     let l:filename = resolve(expand("<afile>:p"))
     let l:fileroot = fnamemodify(l:filename, ':r')
-    if a:bufread
-        let b:jupytext_file = l:fileroot . "." . g:jupytext_fmt
-        let b:jupytext_file_exists = filereadable(b:jupytext_file)
-    else
-        let b:jupytext_file = s:tmpfilename(l:fileroot, g:jupytext_fmt)
-        let b:jupytext_file_exists = 0
+    if get(s:jupytext_extension_map, g:jupytext_fmt, 'none') == 'none'
+        echoerr "Invalid jupytext_fmt: ".g:jupytext_fmt
+        return
     endif
+    let b:jupytext_file = s:get_jupytext_file(
+    \                           l:filename, g:jupytext_fmt, !a:bufread)
+    let b:jupytext_file_exists = filereadable(b:jupytext_file)
     let l:filename_exists = filereadable(l:filename)
-    "echomsg "DBG: filename: ".l:filename
-    "echomsg "DBG: filename exists: ".l:filename_exists
-    "echomsg "DBG: jupytext_file: ".b:jupytext_file
-    "echomsg "DBG: jupytext_file exists: ".b:jupytext_file_exists
+    call s:debugmsg("filename: ".l:filename)
+    call s:debugmsg("filename exists: ".l:filename_exists)
+    call s:debugmsg("jupytext_file: ".b:jupytext_file)
+    call s:debugmsg("jupytext_file exists: ".b:jupytext_file_exists)
     if (l:filename_exists && !b:jupytext_file_exists)
-        "echomsg "DBG: Generate file ".b:jupytext_file
+        call s:debugmsg("Generate file ".b:jupytext_file)
         let l:cmd = "!jupytext --to=".g:jupytext_fmt
                     \ . " --output=".shellescape(b:jupytext_file) . " "
                     \ . shellescape(l:filename)
-        "echomsg "DBG: cmd: ".l:cmd
+        call s:debugmsg("cmd: ".l:cmd)
         silent execute l:cmd
         if v:shell_error
             echoerr l:cmd.": ".v:shell_error
@@ -151,9 +256,11 @@ function s:read_from_ipynb(bufread)
         else
             let l:register_unload_cmd = "autocmd BufUnload <buffer> call s:cleanup(\"".fnameescape(b:jupytext_file)."\", 1)"
         endif
-        "echomsg "DBG: ".l:register_unload_cmd
+        call s:debugmsg(l:register_unload_cmd)
         silent execute l:register_unload_cmd
-        let l:ft = get(g:jupytext_filetype_map, g:jupytext_fmt, g:jupytext_fmt)
+        let l:ft = get(g:jupytext_filetype_map, g:jupytext_fmt,
+        \              s:jupytext_filetype_map[g:jupytext_fmt])
+        call s:debugmsg("filetype: ".l:ft)
         silent execute "set ft=".l:ft
         " In order to make :undo a no-op immediately after the buffer is read,
         " we need to do this dance with 'undolevels'.  Actually discarding the
@@ -172,6 +279,29 @@ function s:read_from_ipynb(bufread)
 endfunction
 
 
+function s:get_jupytext_file(filename, fmt, hiddentemp)
+    " strip extension
+    let l:fileroot = fnamemodify(a:filename, ':r')
+    " the folder in which filename is
+    let l:head = fnamemodify(l:fileroot, ':h')
+    " the fileroot without the folder
+    let l:tail = fnamemodify(l:fileroot, ':t')
+    " file extension from fmt
+    let l:extension = s:jupytext_extension_map[a:fmt]
+    if a:hiddentemp
+        let i = 1
+        let l:jupytext_file = l:head."/.".i."__".l:tail.".".l:extension
+        while filereadable(fnameescape(l:jupytext_file))
+            let i = i + 1
+            let jupytext_file = l:head."/.".i."__".l:tail.".".l:extension
+        endw
+    else
+        let l:jupytext_file = l:fileroot . "." . l:extension
+    endif
+    return l:jupytext_file
+endfunction
+
+
 function s:tmpfilename(root, extension)
     let l:head = fnamemodify(a:root, ':h')
     let l:tail = fnamemodify(a:root, ':t')
@@ -181,20 +311,20 @@ function s:tmpfilename(root, extension)
         let i = i + 1
         let fname = l:head."/.".i."__".l:tail.".".a:extension
     endw
-    "echomsg "DBG: tmpfilename: ".l:fname
+    call s:debugmsg("tmpfilename: ".l:fname)
     return l:fname
 endfunction
 
 
 function s:write_to_ipynb() abort
     let filename = resolve(expand("<afile>:p"))
-    "echomsg "DBG: overwriting ".fnameescape(b:jupytext_file)
+    call s:debugmsg("overwriting ".fnameescape(b:jupytext_file))
     execute "write! ".fnameescape(b:jupytext_file)
-    "echomsg "DBG: Updating notebook from ".b:jupytext_file
+    call s:debugmsg("Updating notebook from ".b:jupytext_file)
     let l:cmd = "!jupytext --from=" . g:jupytext_fmt . " --update "
                 \ . "--to=ipynb --output=".fnameescape(filename)." "
                 \ . shellescape(b:jupytext_file)
-    "echomsg "DBG: cmd: ".l:cmd
+    call s:debugmsg("cmd: ".l:cmd)
     silent execute l:cmd
     if v:shell_error
         echoerr l:cmd.": ".v:shell_error
@@ -205,9 +335,9 @@ endfunction
 
 
 function s:cleanup(jupytext_file, delete)
-    "echomsg "DBG: a:jupytext_file:".a:jupytext_file
+    call s:debugmsg("a:jupytext_file:".a:jupytext_file)
     if a:delete
-        "echomsg "DBG: deleting ".fnameescape(a:jupytext_file)
+        call s:debugmsg("deleting ".fnameescape(a:jupytext_file))
         call delete(expand(fnameescape(a:jupytext_file)))
     endif
 endfunction

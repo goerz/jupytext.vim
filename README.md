@@ -39,11 +39,18 @@ The following settings in your `~/.vimrc` may be used to configure the plugin:
 
 *   `let g:jupytext_fmt = 'md'`
 
-    One of `'md'` or `'py'`. The format to which to convert the `ipynb` data, and extension of the linked text file.
+    The format to which to convert the `ipynb` data. This can be any format that the `jupytext` utility accepts for its `--to` parameter (see `jupytext --help`), except for `'notebook'` and `'ipynb'`.
 
-*   `let g:jupytext_filetype_map = {'md': 'markdown', 'py': 'python'}`
+*   `let g:jupytext_filetype_map = {}`
 
-    A mapping of `g:jupytext_fmt` to the filetype that should be used for the buffer (`:help filetype`). This determines the syntax highlighting.
+    A mapping of `g:jupytext_fmt` to the filetype that should be used for the buffer (`:help filetype`). This determines the syntax highlighting.  You may use this setting to override the default filetype. For example, to use the 'pandoc' filetype instead of the default 'markdown' for the 'md' fmt, define
+
+        let g:jupytext_filetype_map = {'md': 'pandoc'}
+
+*   `let g:jupytext_print_debug_msgs = 0`
+
+    If set to 1, print debug messages while running the plugin (view with `:messages`)
+
 
 
 [1]: http://www.vim.org
