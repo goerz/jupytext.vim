@@ -320,7 +320,7 @@ function s:write_to_ipynb() abort
     execute "write! ".fnameescape(b:jupytext_file)
     call s:debugmsg("Updating notebook from ".b:jupytext_file)
     let l:cmd = "!".g:jupytext_command." --from=" . g:jupytext_fmt
-    \         . " --to=ipynb --output=".fnameescape(filename)
+    \         . " --to=ipynb --output=".shellescape(l:filename)
     \         . " --update " . shellescape(b:jupytext_file)
     call s:debugmsg("cmd: ".l:cmd)
     silent execute l:cmd
