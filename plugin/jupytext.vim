@@ -85,6 +85,11 @@
 "       that the jupytext utility accepts for its `--to` parameter (see
 "       `jupytext --help`), except for 'notebook' and 'ipynb'.
 "
+"    *  let g:jupytext_to_ipynb_opts = '--to=ipynb --update'
+"
+"       Command line options for the conversion from g:jupytext_fmt back to
+"       the notebook format
+"
 "    *  let g:jupytext_filetype_map = {}
 "
 "       A mapping of g:jupytext_fmt to the filetype that should be used for
@@ -99,6 +104,15 @@
 "
 "       If set to 1, print debug messages while running the plugin (view with
 "       :messages)
+"
+"   Note:
+"   If you are using this plugin as a replacement for the ipynb_notedown.vim
+"   plugin (https://www.vim.org/scripts/script.php?script_id=5506), you can
+"   use the following options to use the notedown utility instead of jupytext:
+"
+"       let g:jupytext_command = 'notedown'
+"       let g:jupytext_fmt = 'markdown'
+"       let g:jupytext_to_ipynb_opts = '--to=notebook'
 
 if exists("loaded_jupytext") || &cp || exists("#BufReadCmd#*.ipynb")
     finish
@@ -216,6 +230,10 @@ if !exists('g:jupytext_fmt')
     let g:jupytext_fmt = 'md'
 endif
 
+if !exists('g:jupytext_to_ipynb_opts')
+    let g:jupytext_to_ipynb_opts = '--to=ipynb --update'
+endif
+
 if !g:jupytext_enable
     finish
 endif
@@ -305,8 +323,8 @@ function s:write_to_ipynb() abort
     execute "write! ".fnameescape(b:jupytext_file)
     call s:debugmsg("Updating notebook from ".b:jupytext_file)
     let l:cmd = "!".g:jupytext_command." --from=" . g:jupytext_fmt
-    \         . " --to=ipynb --output=".shellescape(l:filename)
-    \         . " --update " . shellescape(b:jupytext_file)
+    \         . " " . g:jupytext_to_ipynb_opts . " "
+    \         . shellescape(b:jupytext_file)
     call s:debugmsg("cmd: ".l:cmd)
     silent execute l:cmd
     if v:shell_error

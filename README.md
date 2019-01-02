@@ -3,9 +3,6 @@
 [Vim][1]/[Neovim][2] plugin for editing [Jupyter notebook][3] (ipynb) files
 through [jupytext][4].
 
-This is a successor to the [`ipynb_notedown.vim` plugin][5].
-
-
 ## Installation
 
 1.  Make sure that you have the `jupytext` CLI program installed (`pip install jupytext`).
@@ -46,6 +43,10 @@ The plugin has the following settings. If you want to override the default value
 
     The format to which to convert the `ipynb` data. This can be any format that the `jupytext` utility accepts for its `--to` parameter (see `jupytext --help`), except for `'notebook'` and `'ipynb'`.
 
+*  `let g:jupytext_to_ipynb_opts = '--to=ipynb --update'`
+
+   Command line options for the conversion from `g:jupytext_fmt` back to the notebook format
+
 *   `let g:jupytext_filetype_map = {}`
 
     A mapping of `g:jupytext_fmt` to the filetype that should be used for the buffer (`:help filetype`). This determines the syntax highlighting.  You may use this setting to override the default filetype. For example, to use the 'pandoc' filetype instead of the default 'markdown' for the 'md' fmt, define
@@ -56,6 +57,12 @@ The plugin has the following settings. If you want to override the default value
 
     If set to 1, print debug messages while running the plugin (view with `:messages`)
 
+Note: If you are using this plugin as a replacement for the [`ipynb_notedown.vim` plugin][6] (https://www.vim.org/scripts/script.php?script_id=5506), you can use the following options to use the [`notedown` utility][6] instead of `jupytext`:
+
+    let g:jupytext_command = 'notedown'
+    let g:jupytext_fmt = 'markdown'
+    let g:jupytext_to_ipynb_opts = '--to=notebook'
+
 
 
 [1]: http://www.vim.org
@@ -63,3 +70,4 @@ The plugin has the following settings. If you want to override the default value
 [3]: http://jupyter.org
 [4]: https://github.com/mwouts/jupytext
 [5]: https://github.com/goerz/ipynb_notedown.vim
+[6]: https://github.com/aaren/notedown
