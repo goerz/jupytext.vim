@@ -200,7 +200,7 @@ endfunction
 
 
 if !exists('g:jupytext_filetype_map')
-    call s:debugmsg("Setting g:jupytext_filetype_map to default")
+    let g:jupytext_filetype_map = s:jupytext_filetype_map
 endif
 
 
