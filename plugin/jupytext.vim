@@ -314,20 +314,6 @@ function s:get_jupytext_file(filename, fmt, hiddentemp)
 endfunction
 
 
-function s:tmpfilename(root, extension)
-    let l:head = fnamemodify(a:root, ':h')
-    let l:tail = fnamemodify(a:root, ':t')
-    let i = 1
-    let l:fname = l:head."/.".i."__".l:tail.".".a:extension
-    while filereadable(fnameescape(l:fname))
-        let i = i + 1
-        let fname = l:head."/.".i."__".l:tail.".".a:extension
-    endw
-    call s:debugmsg("tmpfilename: ".l:fname)
-    return l:fname
-endfunction
-
-
 function s:write_to_ipynb() abort
     let filename = resolve(expand("<afile>:p"))
     call s:debugmsg("overwriting ".fnameescape(b:jupytext_file))
