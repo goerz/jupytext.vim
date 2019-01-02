@@ -1,5 +1,5 @@
 " Name: jupytext.vim
-" Last Change: Jan 1, 2019
+" Last Change: Jan 2, 2019
 " Author:  Michael Goerz <http://michaelgoerz.net>
 " Plugin Website: https://github.com/goerz/jupytext.vim
 " Summary: Vim plugin for editing Jupyter ipynb files via jupytext
@@ -224,22 +224,19 @@ endif
 augroup ipynb
     " Remove all ipynb autocommands
     au!
-    autocmd BufReadCmd *.ipynb  call s:read_from_ipynb(1)
-    autocmd FileReadCmd *.ipynb call s:read_from_ipynb(0)
+    autocmd BufReadCmd *.ipynb  call s:read_from_ipynb()
     autocmd BufWriteCmd,FileWriteCmd *.ipynb call s:write_to_ipynb()
 augroup END
 
 
-function s:read_from_ipynb(bufread)
-    " The bufread argument specifies whether this was called due to BufReadCmd
+function s:read_from_ipynb()
     let l:filename = resolve(expand("<afile>:p"))
     let l:fileroot = fnamemodify(l:filename, ':r')
     if get(s:jupytext_extension_map, g:jupytext_fmt, 'none') == 'none'
         echoerr "Invalid jupytext_fmt: ".g:jupytext_fmt
         return
     endif
-    let b:jupytext_file = s:get_jupytext_file(
-    \                           l:filename, g:jupytext_fmt, !a:bufread)
+    let b:jupytext_file = s:get_jupytext_file(l:filename, g:jupytext_fmt)
     let b:jupytext_file_exists = filereadable(b:jupytext_file)
     let l:filename_exists = filereadable(l:filename)
     call s:debugmsg("filename: ".l:filename)
@@ -259,40 +256,37 @@ function s:read_from_ipynb(bufread)
         endif
     endif
     if filereadable(b:jupytext_file)
+        " jupytext_file does not exist if filename_exists was false, e.g. when
+        " we edit a new file (vim new.ipynb)
         silent execute "read" b:jupytext_file
     endif
-    if a:bufread
-        if b:jupytext_file_exists
-            let l:register_unload_cmd = "autocmd BufUnload <buffer> call s:cleanup(\"".fnameescape(b:jupytext_file)."\", 0)"
+    if b:jupytext_file_exists
+        let l:register_unload_cmd = "autocmd BufUnload <buffer> call s:cleanup(\"".fnameescape(b:jupytext_file)."\", 0)"
 
-        else
-            let l:register_unload_cmd = "autocmd BufUnload <buffer> call s:cleanup(\"".fnameescape(b:jupytext_file)."\", 1)"
-        endif
-        call s:debugmsg(l:register_unload_cmd)
-        silent execute l:register_unload_cmd
-        let l:ft = get(g:jupytext_filetype_map, g:jupytext_fmt,
-        \              s:jupytext_filetype_map[g:jupytext_fmt])
-        call s:debugmsg("filetype: ".l:ft)
-        silent execute "set ft=".l:ft
-        " In order to make :undo a no-op immediately after the buffer is read,
-        " we need to do this dance with 'undolevels'.  Actually discarding the
-        " undo history requires performing a change after setting 'undolevels'
-        " to -1 and, luckily, we have one we need to do (delete the extra line
-        " from the :r command)
-        let levels = &undolevels
-        set undolevels=-1
-        silent 1delete
-        let &undolevels = levels
-        silent execute "autocmd BufEnter <buffer> redraw | echo fnamemodify(b:jupytext_file, ':.').' via jupytext.'"
     else
-        " remove the temporary file
-        call delete(expand(fnameescape(b:jupytext_file)))
+        let l:register_unload_cmd = "autocmd BufUnload <buffer> call s:cleanup(\"".fnameescape(b:jupytext_file)."\", 1)"
     endif
+    call s:debugmsg(l:register_unload_cmd)
+    silent execute l:register_unload_cmd
+    let l:ft = get(g:jupytext_filetype_map, g:jupytext_fmt,
+    \              s:jupytext_filetype_map[g:jupytext_fmt])
+    call s:debugmsg("filetype: ".l:ft)
+    silent execute "set ft=".l:ft
+    " In order to make :undo a no-op immediately after the buffer is read,
+    " we need to do this dance with 'undolevels'.  Actually discarding the
+    " undo history requires performing a change after setting 'undolevels'
+    " to -1 and, luckily, we have one we need to do (delete the extra line
+    " from the :r command)
+    let levels = &undolevels
+    set undolevels=-1
+    silent 1delete
+    let &undolevels = levels
+    silent execute "autocmd BufEnter <buffer> redraw | echo fnamemodify(b:jupytext_file, ':.').' via jupytext.'"
 endfunction
 
 
-function s:get_jupytext_file(filename, fmt, hiddentemp)
-    " strip extension
+function s:get_jupytext_file(filename, fmt)
+    " strip file extension
     let l:fileroot = fnamemodify(a:filename, ':r')
     " the folder in which filename is
     let l:head = fnamemodify(l:fileroot, ':h')
@@ -300,16 +294,7 @@ function s:get_jupytext_file(filename, fmt, hiddentemp)
     let l:tail = fnamemodify(l:fileroot, ':t')
     " file extension from fmt
     let l:extension = s:jupytext_extension_map[a:fmt]
-    if a:hiddentemp
-        let i = 1
-        let l:jupytext_file = l:head."/.".i."__".l:tail.".".l:extension
-        while filereadable(fnameescape(l:jupytext_file))
-            let i = i + 1
-            let jupytext_file = l:head."/.".i."__".l:tail.".".l:extension
-        endw
-    else
-        let l:jupytext_file = l:fileroot . "." . l:extension
-    endif
+    let l:jupytext_file = l:fileroot . "." . l:extension
     return l:jupytext_file
 endfunction
 
