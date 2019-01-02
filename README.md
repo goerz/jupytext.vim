@@ -19,11 +19,11 @@ When you open a Jupyter Notebook (`*.ipynb`) file, it is automatically converted
 
 In more detail, opening a file `notebook.ipynb` in vim will create a temporary file `notebook.md` or `notebook.py` (depending on `g:jupytext_fmt`). This file is the result of calling e.g.
 
-    jupytext --to=md --output notebook.md notebook.ipynb
+    jupytext --to=md notebook.ipynb
 
 The contents of the file is loaded into the buffer instead of the original `notebook.ipynb`. When saving the buffer, its contents is written again to `notebook.md`, and the original `notebook.ipynb` is updated with a call to
 
-    jupytext --to=ipynb --from=md --update --output notebook.ipynb notebook.md
+    jupytext --to=ipynb --from=md --update notebook.md
 
 The `--update` flag ensures the output for any cell whose corresponding input in `notebook.md` is unchanged will be preserved.
 

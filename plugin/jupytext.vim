@@ -47,14 +47,14 @@
 "    temporary file notebook.md or notebook.py (depending on g:jupytext_fmt).
 "    This file is the result of calling e.g.
 "
-"       jupytext --to=md --output notebook.md notebook.ipynb
+"       jupytext --to=md notebook.ipynb
 "
 "    The contents of the file is loaded into the buffer instead of the
 "    original notebook.ipynb. When saving the buffer, its contents is written
 "    again to notebook.md, and the original notebook.ipynb is updated with
 "    a call to
 "
-"       jupytext --to=ipynb --from=md --update --output notebook.ipynb notebook.md
+"       jupytext --to=ipynb --from=md --update notebook.md
 "
 "    The --update flag ensures the output for any cell whose corresponding
 "    input in notebook.md is unchanged will be preserved.
@@ -248,8 +248,7 @@ function s:read_from_ipynb(bufread)
     call s:debugmsg("jupytext_file exists: ".b:jupytext_file_exists)
     if (l:filename_exists && !b:jupytext_file_exists)
         call s:debugmsg("Generate file ".b:jupytext_file)
-        let l:cmd = "!".g:jupytext_command." --to=".g:jupytext_fmt
-        \         . " --output=".shellescape(b:jupytext_file) . " "
+        let l:cmd = "!".g:jupytext_command." --to=".g:jupytext_fmt . " "
         \         . shellescape(l:filename)
         call s:debugmsg("cmd: ".l:cmd)
         silent execute l:cmd
@@ -334,8 +333,7 @@ function s:write_to_ipynb() abort
     execute "write! ".fnameescape(b:jupytext_file)
     call s:debugmsg("Updating notebook from ".b:jupytext_file)
     let l:cmd = "!".g:jupytext_command." --from=" . g:jupytext_fmt
-    \         . " --to=ipynb --output=".fnameescape(filename)
-    \         . " --update " . shellescape(b:jupytext_file)
+    \         . " --to=ipynb --update " . shellescape(b:jupytext_file)
     call s:debugmsg("cmd: ".l:cmd)
     silent execute l:cmd
     if v:shell_error
