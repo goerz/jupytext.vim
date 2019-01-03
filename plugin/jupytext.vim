@@ -276,7 +276,8 @@ function s:read_from_ipynb()
     if filereadable(b:jupytext_file)
         " jupytext_file does not exist if filename_exists was false, e.g. when
         " we edit a new file (vim new.ipynb)
-        silent execute "read" b:jupytext_file
+        call s:debugmsg("read ".fnameescape(b:jupytext_file))
+        silent execute "read ".fnameescape(b:jupytext_file)
     endif
     if b:jupytext_file_exists
         let l:register_unload_cmd = "autocmd BufUnload <buffer> call s:cleanup(\"".fnameescape(b:jupytext_file)."\", 0)"
