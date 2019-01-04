@@ -1,7 +1,9 @@
 # jupytext.vim
 
-[Vim][1]/[Neovim][2] plugin for editing [Jupyter notebook][3] (ipynb) files
-through [jupytext][4].
+[Vim][1]/[Neovim][2] plugin for editing [Jupyter notebook][3] (ipynb) files through [jupytext][4].
+
+https://www.vim.org/scripts/script.php?script_id=5764
+
 
 ## Installation
 
