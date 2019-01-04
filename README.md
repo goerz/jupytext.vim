@@ -57,7 +57,7 @@ The plugin has the following settings. If you want to override the default value
 
     If set to 1, print debug messages while running the plugin (view with `:messages`)
 
-Note: If you are using this plugin as a replacement for the [`ipynb_notedown.vim` plugin][6] (https://www.vim.org/scripts/script.php?script_id=5506), you can use the following options to use the [`notedown` utility][6] instead of `jupytext`:
+Note: If you are using this plugin as a replacement for the [`ipynb_notedown.vim` plugin][5] (https://www.vim.org/scripts/script.php?script_id=5506), you can use the following options to use [`notedown`][6] instead of [`jupytext`][4]:
 
     let g:jupytext_command = 'notedown'
     let g:jupytext_fmt = 'markdown'

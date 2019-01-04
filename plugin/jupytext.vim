@@ -1,6 +1,6 @@
 " Name: jupytext.vim
 " Last Change: Jan 2, 2019
-" Author:  Michael Goerz <http://michaelgoerz.net>
+" Author:  Michael Goerz <https://michaelgoerz.net>
 " Plugin Website: https://github.com/goerz/jupytext.vim
 " Summary: Vim plugin for editing Jupyter ipynb files via jupytext
 " Version: 0.1.0-dev
@@ -108,7 +108,7 @@
 "   Note:
 "   If you are using this plugin as a replacement for the ipynb_notedown.vim
 "   plugin (https://www.vim.org/scripts/script.php?script_id=5506), you can
-"   use the following options to use the notedown utility instead of jupytext:
+"   use the following options to use notedown instead of jupytext:
 "
 "       let g:jupytext_command = 'notedown'
 "       let g:jupytext_fmt = 'markdown'
