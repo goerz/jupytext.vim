@@ -3,7 +3,7 @@
 " Author:  Michael Goerz <https://michaelgoerz.net>
 " Plugin Website: https://github.com/goerz/jupytext.vim
 " Summary: Vim plugin for editing Jupyter ipynb files via jupytext
-" Version: 0.1.0
+" Version: 0.1.0+dev
 " License:
 "    MIT License
 "
