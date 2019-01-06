@@ -20,6 +20,8 @@ In more detail, opening a file `notebook.ipynb` in vim will create a temporary f
 
     jupytext --to=md --output notebook.md notebook.ipynb
 
+![jupytext.vim screenshot](https://gist.githubusercontent.com/goerz/884df0ffe9b017dbcd976011ad2c52d7/raw/f50439829092358acdc4a791c8e3fe4e780b0d89/screenshot_W8Yh8m.png "Screenshot of editing a notebook file in vim in md format")
+
 The contents of the file is loaded into the buffer instead of the original `notebook.ipynb`. When saving the buffer, its contents is written again to `notebook.md`, and the original `notebook.ipynb` is updated with a call to
 
     jupytext --to=ipynb --from=md --update --output notebook.ipynb notebook.md
