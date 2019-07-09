@@ -1,5 +1,5 @@
 " Name: jupytext.vim
-" Last Change: Jan 4, 2019
+" Last Change: Jul 9, 2019
 " Author:  Michael Goerz <https://michaelgoerz.net>
 " Plugin Website: https://github.com/goerz/jupytext.vim
 " Summary: Vim plugin for editing Jupyter ipynb files via jupytext
@@ -133,7 +133,7 @@ let s:jupytext_filetype_map = {
 \   'md': 'markdown',
 \   'Rmd': 'rmarkdown',
 \   'r': 'r',
-\   'py': 'py',
+\   'py': 'python',
 \   'jl': 'jl',
 \   'cpp': 'cpp',
 \   'ss': 'ss',
