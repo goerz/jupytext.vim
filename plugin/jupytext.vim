@@ -134,7 +134,7 @@ let s:jupytext_filetype_map = {
 \   'Rmd': 'rmarkdown',
 \   'r': 'r',
 \   'py': 'python',
-\   'jl': 'jl',
+\   'jl': 'julia',
 \   'cpp': 'cpp',
 \   'ss': 'ss',
 \   'sh': 'sh',
