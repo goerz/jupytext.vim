@@ -277,7 +277,7 @@ function s:read_from_ipynb()
         " jupytext_file does not exist if filename_exists was false, e.g. when
         " we edit a new file (vim new.ipynb)
         call s:debugmsg("read ".fnameescape(b:jupytext_file))
-        silent execute "read ".fnameescape(b:jupytext_file)
+        silent execute "read ++enc=utf-8 ".fnameescape(b:jupytext_file)
     endif
     if b:jupytext_file_exists
         let l:register_unload_cmd = "autocmd BufUnload <buffer> call s:cleanup(\"".fnameescape(b:jupytext_file)."\", 0)"
@@ -290,7 +290,7 @@ function s:read_from_ipynb()
     let l:ft = get(g:jupytext_filetype_map, g:jupytext_fmt,
     \              s:jupytext_filetype_map[g:jupytext_fmt])
     call s:debugmsg("filetype: ".l:ft)
-    silent execute "set ft=".l:ft
+    silent execute "setl fenc=utf-8 ft=".l:ft
     " In order to make :undo a no-op immediately after the buffer is read,
     " we need to do this dance with 'undolevels'.  Actually discarding the
     " undo history requires performing a change after setting 'undolevels'
