@@ -239,15 +239,15 @@ if !g:jupytext_enable
 endif
 
 
-augroup ipynb
+augroup jupytext_ipynb
     " Remove all ipynb autocommands
     au!
     autocmd BufReadCmd *.ipynb  call s:read_from_ipynb()
-    autocmd BufWriteCmd,FileWriteCmd *.ipynb call s:write_to_ipynb()
 augroup END
 
 
 function s:read_from_ipynb()
+    au! jupytext_ipynb * <buffer>
     let l:filename = resolve(expand("<afile>:p"))
     let l:fileroot = fnamemodify(l:filename, ':r')
     if get(s:jupytext_extension_map, g:jupytext_fmt, 'none') == 'none'
@@ -281,13 +281,17 @@ function s:read_from_ipynb()
         silent execute "read ++enc=utf-8 ".fnameescape(b:jupytext_file)
     endif
     if b:jupytext_file_exists
-        let l:register_unload_cmd = "autocmd BufUnload <buffer> call s:cleanup(\"".fnameescape(b:jupytext_file)."\", 0)"
-
+        let l:register_unload_cmd = "autocmd jupytext_ipynb BufUnload <buffer> call s:cleanup(\"".fnameescape(b:jupytext_file)."\", 0)"
     else
-        let l:register_unload_cmd = "autocmd BufUnload <buffer> call s:cleanup(\"".fnameescape(b:jupytext_file)."\", 1)"
+        let l:register_unload_cmd = "autocmd jupytext_ipynb BufUnload <buffer> call s:cleanup(\"".fnameescape(b:jupytext_file)."\", 1)"
     endif
     call s:debugmsg(l:register_unload_cmd)
     silent execute l:register_unload_cmd
+
+    let l:register_write_cmd = "autocmd jupytext_ipynb BufWriteCmd,FileWriteCmd <buffer> call s:write_to_ipynb()"
+    call s:debugmsg(l:register_write_cmd)
+    silent execute l:register_write_cmd
+
     let l:ft = get(g:jupytext_filetype_map, g:jupytext_fmt,
     \              s:jupytext_filetype_map[g:jupytext_fmt])
     call s:debugmsg("filetype: ".l:ft)
@@ -301,7 +305,7 @@ function s:read_from_ipynb()
     set undolevels=-1
     silent 1delete
     let &undolevels = levels
-    silent execute "autocmd BufEnter <buffer> redraw | echo fnamemodify(b:jupytext_file, ':.').' via jupytext.'"
+    silent execute "autocmd jupytext_ipynb BufEnter <buffer> ++once redraw | echo fnamemodify(b:jupytext_file, ':.').' via jupytext.'"
 endfunction
 
 
