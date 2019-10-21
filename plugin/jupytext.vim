@@ -305,7 +305,12 @@ function s:read_from_ipynb()
     set undolevels=-1
     silent 1delete
     let &undolevels = levels
-    silent execute "autocmd jupytext_ipynb BufEnter <buffer> ++once redraw | echo fnamemodify(b:jupytext_file, ':.').' via jupytext.'"
+    if has("patch-8.1.1113")
+        silent execute "autocmd jupytext_ipynb BufEnter <buffer> ++once redraw | echo fnamemodify(b:jupytext_file, ':.').' via jupytext.'"
+    else
+        silent execute "autocmd jupytext_ipynb BufEnter <buffer> redraw | echo fnamemodify(b:jupytext_file, ':.').' via jupytext.'"
+    endif
+
 endfunction
 
 
