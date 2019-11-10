@@ -1,9 +1,9 @@
 " Name: jupytext.vim
-" Last Change: Jul 9, 2019
+" Last Change: Nov 10, 2019
 " Author:  Michael Goerz <https://michaelgoerz.net>
 " Plugin Website: https://github.com/goerz/jupytext.vim
 " Summary: Vim plugin for editing Jupyter ipynb files via jupytext
-" Version: 0.1.1+dev
+" Version: 0.1.2
 " License:
 "    MIT License
 "
