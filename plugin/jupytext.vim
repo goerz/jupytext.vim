@@ -339,7 +339,7 @@ function s:write_to_ipynb() abort
     \         . " " . g:jupytext_to_ipynb_opts . " "
     \         . shellescape(b:jupytext_file)
     call s:debugmsg("cmd: ".l:cmd)
-    if has("job") || has("nvim")
+    if has("nvim")
         call s:async_system(l:cmd, "s:jupytext_exit_callback")
     else
         let l:output=system(l:cmd)
@@ -354,18 +354,7 @@ function s:write_to_ipynb() abort
 endfunction
 
 function! s:async_system(cmd, callback)
-    echom a:cmd
-    if has("nvim")
-        call jobstart(a:cmd, {"on_exit": function(a:callback)})
-    else
-        call job_start(a:cmd, {"exit_cb": function(a:callback . "_vim"), "err_io": "out", "out_io": "file", "out_name": "/tmp/jupytext_vim_job_out.txt"})
-    endif
-endfunction
-
-function s:jupytext_exit_callback_vim(job, exit_status)
-    echom a:exit_status
-    echom a:job
-    call s:jupytext_exit_callback(a:job, a:exit_status, 0)
+    call jobstart(a:cmd, {"on_exit": function(a:callback)})
 endfunction
 
 function s:jupytext_exit_callback(id, data, event) abort
