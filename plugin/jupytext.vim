@@ -121,7 +121,7 @@ endif
 
 " for all the formates that jupytext takes for --to, the filetype that vim
 " should use (this determines syntax highlighting)
-let s:jupytext_filetype_map = {
+let g:jupytext_filetype_map_default = {
 \   'rmarkdown': 'rmarkdown',
 \   'markdown': 'markdown',
 \   'python': 'python',
@@ -161,60 +161,12 @@ let s:jupytext_filetype_map = {
 \ }
 
 
-" for all the formates that jupytext takes for --to, the file extension that
-" should be used for the linked file
-let s:jupytext_extension_map = {
-\   'rmarkdown': 'Rmd',
-\   'markdown': 'md',
-\   'python': 'py',
-\   'julia': 'jl',
-\   'c++': 'cpp',
-\   'scheme': 'ss',
-\   'bash': 'sh',
-\   'md': 'md',
-\   'Rmd': 'Rmd',
-\   'r': 'r',
-\   'R': 'r',
-\   'py': 'py',
-\   'jl': 'jl',
-\   'cpp': 'cpp',
-\   'ss': 'ss',
-\   'sh': 'sh',
-\   'md:markdown': 'md',
-\   'Rmd:rmarkdown': 'Rmd',
-\   'r:spin': 'r',
-\   'R:spin': 'r',
-\   'py:light': 'py',
-\   'R:light': 'r',
-\   'r:light': 'r',
-\   'jl:light': 'jl',
-\   'cpp:light': 'cpp',
-\   'ss:light': 'ss',
-\   'sh:light': 'sh',
-\   'py:percent': 'py',
-\   'R:percent': 'R',
-\   'r:percent': 'r',
-\   'jl:percent': 'jl',
-\   'cpp:percent': 'cpp',
-\   'ss:percent': 'ss',
-\   'sh:percent': 'sh',
-\   'py:sphinx': 'py',
-\   'py:sphinx-rst2md': 'py',
-\ }
-
-
 if !exists('g:jupytext_print_debug_msgs')
     let g:jupytext_print_debug_msgs = 0
 endif
-function s:debugmsg(msg)
-    if g:jupytext_print_debug_msgs
-        echomsg("DBG: ".a:msg)
-    endif
-endfunction
-
 
 if !exists('g:jupytext_filetype_map')
-    let g:jupytext_filetype_map = s:jupytext_filetype_map
+    let g:jupytext_filetype_map = g:jupytext_filetype_map_default
 endif
 
 
@@ -242,119 +194,8 @@ endif
 augroup jupytext_ipynb
     " Remove all ipynb autocommands
     au!
-    autocmd BufReadCmd *.ipynb  call s:read_from_ipynb()
+    autocmd BufReadCmd *.ipynb  call jupytext#read_from_ipynb()
 augroup END
-
-
-function s:read_from_ipynb()
-    au! jupytext_ipynb * <buffer>
-    let l:filename = resolve(expand("<afile>:p"))
-    let l:fileroot = fnamemodify(l:filename, ':r')
-    if get(s:jupytext_extension_map, g:jupytext_fmt, 'none') == 'none'
-        echoerr "Invalid jupytext_fmt: ".g:jupytext_fmt
-        return
-    endif
-    let b:jupytext_file = s:get_jupytext_file(l:filename, g:jupytext_fmt)
-    let b:jupytext_file_exists = filereadable(b:jupytext_file)
-    let l:filename_exists = filereadable(l:filename)
-    call s:debugmsg("filename: ".l:filename)
-    call s:debugmsg("filename exists: ".l:filename_exists)
-    call s:debugmsg("jupytext_file: ".b:jupytext_file)
-    call s:debugmsg("jupytext_file exists: ".b:jupytext_file_exists)
-    if (l:filename_exists && !b:jupytext_file_exists)
-        call s:debugmsg("Generate file ".b:jupytext_file)
-        let l:cmd = g:jupytext_command." --to=".g:jupytext_fmt
-        \         . " --output=".shellescape(b:jupytext_file) . " "
-        \         . shellescape(l:filename)
-        call s:debugmsg("cmd: ".l:cmd)
-        let l:output=system(l:cmd)
-        call s:debugmsg(l:output)
-        if v:shell_error
-            echoerr l:cmd.": ".v:shell_error
-            return
-        endif
-    endif
-    if filereadable(b:jupytext_file)
-        " jupytext_file does not exist if filename_exists was false, e.g. when
-        " we edit a new file (vim new.ipynb)
-        call s:debugmsg("read ".fnameescape(b:jupytext_file))
-        silent execute "read ++enc=utf-8 ".fnameescape(b:jupytext_file)
-    endif
-    if b:jupytext_file_exists
-        let l:register_unload_cmd = "autocmd jupytext_ipynb BufUnload <buffer> call s:cleanup(\"".fnameescape(b:jupytext_file)."\", 0)"
-    else
-        let l:register_unload_cmd = "autocmd jupytext_ipynb BufUnload <buffer> call s:cleanup(\"".fnameescape(b:jupytext_file)."\", 1)"
-    endif
-    call s:debugmsg(l:register_unload_cmd)
-    silent execute l:register_unload_cmd
-
-    let l:register_write_cmd = "autocmd jupytext_ipynb BufWriteCmd,FileWriteCmd <buffer> call s:write_to_ipynb()"
-    call s:debugmsg(l:register_write_cmd)
-    silent execute l:register_write_cmd
-
-    let l:ft = get(g:jupytext_filetype_map, g:jupytext_fmt,
-    \              s:jupytext_filetype_map[g:jupytext_fmt])
-    call s:debugmsg("filetype: ".l:ft)
-    silent execute "setl fenc=utf-8 ft=".l:ft
-    " In order to make :undo a no-op immediately after the buffer is read,
-    " we need to do this dance with 'undolevels'.  Actually discarding the
-    " undo history requires performing a change after setting 'undolevels'
-    " to -1 and, luckily, we have one we need to do (delete the extra line
-    " from the :r command)
-    let levels = &undolevels
-    set undolevels=-1
-    silent 1delete
-    let &undolevels = levels
-    if has("patch-8.1.1113")
-        silent execute "autocmd jupytext_ipynb BufEnter <buffer> ++once redraw | echo fnamemodify(b:jupytext_file, ':.').' via jupytext.'"
-    else
-        silent execute "autocmd jupytext_ipynb BufEnter <buffer> redraw | echo fnamemodify(b:jupytext_file, ':.').' via jupytext.'"
-    endif
-
-endfunction
-
-
-function s:get_jupytext_file(filename, fmt)
-    " strip file extension
-    let l:fileroot = fnamemodify(a:filename, ':r')
-    " the folder in which filename is
-    let l:head = fnamemodify(l:fileroot, ':h')
-    " the fileroot without the folder
-    let l:tail = fnamemodify(l:fileroot, ':t')
-    " file extension from fmt
-    let l:extension = s:jupytext_extension_map[a:fmt]
-    let l:jupytext_file = l:fileroot . "." . l:extension
-    return l:jupytext_file
-endfunction
-
-
-function s:write_to_ipynb() abort
-    let filename = resolve(expand("<afile>:p"))
-    call s:debugmsg("overwriting ".fnameescape(b:jupytext_file))
-    silent execute "write! ".fnameescape(b:jupytext_file)
-    call s:debugmsg("Updating notebook from ".b:jupytext_file)
-    let l:cmd = g:jupytext_command." --from=" . g:jupytext_fmt
-    \         . " " . g:jupytext_to_ipynb_opts . " "
-    \         . shellescape(b:jupytext_file)
-    call s:debugmsg("cmd: ".l:cmd)
-    let l:output=system(l:cmd)
-    call s:debugmsg(l:output)
-    if v:shell_error
-        echoerr l:cmd.": ".v:shell_error
-    else
-        setlocal nomodified
-        echo expand("%") . " saved via jupytext."
-    endif
-endfunction
-
-
-function s:cleanup(jupytext_file, delete)
-    call s:debugmsg("a:jupytext_file:".a:jupytext_file)
-    if a:delete
-        call s:debugmsg("deleting ".fnameescape(a:jupytext_file))
-        call delete(expand(fnameescape(a:jupytext_file)))
-    endif
-endfunction
 
 
 let loaded_jupytext = 1
