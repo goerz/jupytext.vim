@@ -191,11 +191,11 @@ function s:jupytext_exit_callback(id, data, event) abort
     if a:data == 0
         setlocal nomodified
         echohl ModeMsg
-        echomsg "jupytext.vim: notebook updated"
+        echomsg "jupytext.vim: updated notebook " . expand("%")
         echohl Normal
     else
         echohl ErrorMsg
-        echomsg "jupytext.vim: notebook update failed!"
+        echomsg "jupytext.vim: update failed for notbook " . expand("%")
         echohl Normal
     endif
 endfunction
