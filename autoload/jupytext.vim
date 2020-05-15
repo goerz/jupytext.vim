@@ -71,11 +71,17 @@ let s:jupytext_extension_map = {
 \ }
 
 
+let s:script_path = fnamemodify(resolve(expand('<sfile>:p')), ':h')
 
 function s:debugmsg(msg)
     if g:jupytext_print_debug_msgs
         echomsg("DBG: ".a:msg)
     endif
+endfunction
+
+function jupytext#ftplugin()
+    echom 'function'
+    set ft=jupytext | filetype detect
 endfunction
 
 function jupytext#read_from_ipynb()
@@ -124,6 +130,9 @@ function jupytext#read_from_ipynb()
     call s:debugmsg(l:register_write_cmd)
     silent execute l:register_write_cmd
 
+    " This line is just here to load ftplugins for any jupytext-specific
+    " settings. The ft is immediately overriden after.
+    set filetype=jupytext
     let l:ft = get(g:jupytext_filetype_map, g:jupytext_fmt,
     \              g:jupytext_filetype_map_default[g:jupytext_fmt])
     call s:debugmsg("filetype: ".l:ft)
