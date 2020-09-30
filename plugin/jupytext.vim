@@ -230,6 +230,14 @@ if !exists('g:jupytext_fmt')
     let g:jupytext_fmt = 'md'
 endif
 
+if !exists('g:jupytext_style')
+    let g:jupytext_style = ''
+else
+    " Add semicolon so that everything works when
+    " interpolating into the jupytext command.
+    let g:jupytext_style = ':'.g:jupytext_style
+endif
+
 if !exists('g:jupytext_to_ipynb_opts')
     let g:jupytext_to_ipynb_opts = '--to=ipynb --update'
 endif
@@ -263,7 +271,7 @@ function s:read_from_ipynb()
     call s:debugmsg("jupytext_file exists: ".b:jupytext_file_exists)
     if (l:filename_exists && !b:jupytext_file_exists)
         call s:debugmsg("Generate file ".b:jupytext_file)
-        let l:cmd = g:jupytext_command." --to=".g:jupytext_fmt
+        let l:cmd = g:jupytext_command." --to=".g:jupytext_fmt.g:jupytext_style
         \         . " --output=".shellescape(b:jupytext_file) . " "
         \         . shellescape(l:filename)
         call s:debugmsg("cmd: ".l:cmd)
