@@ -45,11 +45,7 @@ The plugin has the following settings. If you want to override the default value
 
 *   `let g:jupytext_fmt = 'md'`
 
-    The format to which to convert the `ipynb` data. This can be any format that the `jupytext` utility accepts for its `--to` parameter (see `jupytext --help`), except for `'notebook'` and `'ipynb'`.
-
-*   `let g:jupytext_style = ''`
-
-    The jupytext output format generated when converting a notebook to plain text. Check `jupytext --help` to see the available output formats.
+    The format to which to convert the `ipynb` data. This can be any format that the `jupytext` utility accepts for its `--to` parameter (see `jupytext --help`), except for `'notebook'` and `'ipynb'`. The output format for the plain text representation can be specified by appending it to the end of the language with a semicolon separator, for example, `python:hydrogen`.
 
 *  `let g:jupytext_to_ipynb_opts = '--to=ipynb --update'`
 
