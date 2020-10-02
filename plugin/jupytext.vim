@@ -119,89 +119,26 @@ if exists("loaded_jupytext") || &cp || exists("#BufReadCmd#*.ipynb")
 endif
 
 
-" for all the formates that jupytext takes for --to, the filetype that vim
-" should use (this determines syntax highlighting)
+" for all the formats that jupytext takes we specify an extension for
+" the plain text file and buffer file type.
 let s:jupytext_filetype_map = {
-\   'rmarkdown': 'rmarkdown',
-\   'markdown': 'markdown',
-\   'python': 'python',
-\   'R': 'r',
-\   'julia': 'julia',
-\   'c++': 'cpp',
-\   'scheme': 'scheme',
-\   'bash': 'sh',
-\   'md': 'markdown',
-\   'Rmd': 'rmarkdown',
-\   'r': 'r',
-\   'py': 'python',
-\   'jl': 'julia',
-\   'cpp': 'cpp',
-\   'ss': 'ss',
-\   'sh': 'sh',
-\   'md:markdown': 'markdown',
-\   'Rmd:rmarkdown': 'rmarkdown',
-\   'r:spin': 'r',
-\   'R:spin': 'r',
-\   'py:light': 'python',
-\   'R:light': 'r',
-\   'r:light': 'r',
-\   'jl:light': 'julia',
-\   'cpp:light': 'cpp',
-\   'ss:light': 'scheme',
-\   'sh:light': 'sh',
-\   'py:percent': 'python',
-\   'R:percent': 'r',
-\   'r:percent': 'r',
-\   'jl:percent': 'julia',
-\   'cpp:percent': 'cpp',
-\   'ss:percent': 'scheme',
-\   'sh:percent': 'sh',
-\   'py:sphinx': 'python',
-\   'py:sphinx-rst2md': 'python',
+\   'rmarkdown': {'extension': 'Rmd', 'ft': 'rmarkdown'},
+\   'Rmd': {'extension': 'Rmd', 'ft': 'rmarkdown'},
+\   'markdown': {'extension': 'md', 'ft': 'markdown'},
+\   'md': {'extension': 'md', 'ft': 'markdown'},
+\   'python': {'extension': 'py', 'ft': 'python'},
+\   'py': {'extension': 'py', 'ft': 'python'},
+\   'R': {'extension': 'r', 'ft': 'r'},
+\   'r': {'extension': 'r', 'ft': 'r'},
+\   'julia': {'extension': 'jl', 'ft': 'julia'},
+\   'jl': {'extension': 'jl', 'ft': 'julia'},
+\   'c++': {'extension': 'cpp', 'ft': 'cpp'},
+\   'cpp': {'extension': 'cpp', 'ft': 'cpp'},
+\   'scheme': {'extension': 'ss', 'ft': 'scheme'},
+\   'ss': {'extension': 'ss', 'ft': 'scheme'},
+\   'bash': {'extension': 'sh', 'ft': 'sh'},
+\   'sh': {'extension': 'sh', 'ft': 'sh'},
 \ }
-
-
-" for all the formates that jupytext takes for --to, the file extension that
-" should be used for the linked file
-let s:jupytext_extension_map = {
-\   'rmarkdown': 'Rmd',
-\   'markdown': 'md',
-\   'python': 'py',
-\   'julia': 'jl',
-\   'c++': 'cpp',
-\   'scheme': 'ss',
-\   'bash': 'sh',
-\   'md': 'md',
-\   'Rmd': 'Rmd',
-\   'r': 'r',
-\   'R': 'r',
-\   'py': 'py',
-\   'jl': 'jl',
-\   'cpp': 'cpp',
-\   'ss': 'ss',
-\   'sh': 'sh',
-\   'md:markdown': 'md',
-\   'Rmd:rmarkdown': 'Rmd',
-\   'r:spin': 'r',
-\   'R:spin': 'r',
-\   'py:light': 'py',
-\   'R:light': 'r',
-\   'r:light': 'r',
-\   'jl:light': 'jl',
-\   'cpp:light': 'cpp',
-\   'ss:light': 'ss',
-\   'sh:light': 'sh',
-\   'py:percent': 'py',
-\   'R:percent': 'R',
-\   'r:percent': 'r',
-\   'jl:percent': 'jl',
-\   'cpp:percent': 'cpp',
-\   'ss:percent': 'ss',
-\   'sh:percent': 'sh',
-\   'py:sphinx': 'py',
-\   'py:sphinx-rst2md': 'py',
-\ }
-
 
 if !exists('g:jupytext_print_debug_msgs')
     let g:jupytext_print_debug_msgs = 0
@@ -212,12 +149,6 @@ function s:debugmsg(msg)
     endif
 endfunction
 
-
-if !exists('g:jupytext_filetype_map')
-    let g:jupytext_filetype_map = s:jupytext_filetype_map
-endif
-
-
 if !exists('g:jupytext_enable')
     let g:jupytext_enable = 1
 endif
@@ -226,17 +157,36 @@ if !exists('g:jupytext_command')
     let g:jupytext_command = 'jupytext'
 endif
 
-if !exists('g:jupytext_fmt')
-    let g:jupytext_fmt = 'md'
+if exists('g:jupytext_fmt')
+    " If format contains a semicolon split and infer style. This is mainly
+    " for backwards compatibility.
+    
+    " If not -1 we have found a semicolon
+    if !(stridx(g:jupytext_fmt, ":") == -1)
+        let [s:lang_, s:style_] = split(g:jupytext_fmt, ":")
+        let g:jupytext_fmt = s:lang_
+        let g:jupytext_style = ":".s:style_
+    else
+        let g:jupytext_fmt = g:jupytext_fmt
+        let g:jupytext_style = ""
+    endif
+else
+    let g:jupytext_fmt = "md"
+    let 
 endif
 
-if !exists('g:jupytext_style')
-    let g:jupytext_style = ''
+if !exists('g:jupytext_filetype_map')
+    let g:jupytext_filetype_map = s:jupytext_filetype_map
 else
-    " Add semicolon so that everything works when
-    " interpolating into the jupytext command.
-    let g:jupytext_style = ':'.g:jupytext_style
+    " Can't be too straightforward for backwards compatibility
+    let g:jupytext_filetype_map_ = s:jupytext_filetype_map
+     " remap the ft field for specific language
+     for pkey in keys(g:jupytext_filetype_map)
+         let g:jupytext_filetype_map_[pkey]['ft'] = get(g:jupytext_filetype_map, pkey)
+     endfor
+     let g:jupytext_filetype_map = g:jupytext_filetype_map_
 endif
+
 
 if !exists('g:jupytext_to_ipynb_opts')
     let g:jupytext_to_ipynb_opts = '--to=ipynb --update'
@@ -258,11 +208,13 @@ function s:read_from_ipynb()
     au! jupytext_ipynb * <buffer>
     let l:filename = resolve(expand("<afile>:p"))
     let l:fileroot = fnamemodify(l:filename, ':r')
-    if get(s:jupytext_extension_map, g:jupytext_fmt, 'none') == 'none'
+    let l:file_info = get(g:jupytext_filetype_map, g:jupytext_fmt, {})
+    if l:file_info == {}
         echoerr "Invalid jupytext_fmt: ".g:jupytext_fmt
         return
     endif
-    let b:jupytext_file = s:get_jupytext_file(l:filename, g:jupytext_fmt)
+
+    let b:jupytext_file = s:get_jupytext_file(l:filename, l:file_info)
     let b:jupytext_file_exists = filereadable(b:jupytext_file)
     let l:filename_exists = filereadable(l:filename)
     call s:debugmsg("filename: ".l:filename)
@@ -300,8 +252,7 @@ function s:read_from_ipynb()
     call s:debugmsg(l:register_write_cmd)
     silent execute l:register_write_cmd
 
-    let l:ft = get(g:jupytext_filetype_map, g:jupytext_fmt,
-    \              s:jupytext_filetype_map[g:jupytext_fmt])
+    let l:ft = get(l:file_info, 'ft')
     call s:debugmsg("filetype: ".l:ft)
     silent execute "setl fenc=utf-8 ft=".l:ft
     " In order to make :undo a no-op immediately after the buffer is read,
@@ -322,7 +273,7 @@ function s:read_from_ipynb()
 endfunction
 
 
-function s:get_jupytext_file(filename, fmt)
+function s:get_jupytext_file(filename, file_info)
     " strip file extension
     let l:fileroot = fnamemodify(a:filename, ':r')
     " the folder in which filename is
@@ -330,7 +281,7 @@ function s:get_jupytext_file(filename, fmt)
     " the fileroot without the folder
     let l:tail = fnamemodify(l:fileroot, ':t')
     " file extension from fmt
-    let l:extension = s:jupytext_extension_map[a:fmt]
+    let l:extension = get(a:file_info, 'extension')
     let l:jupytext_file = l:fileroot . "." . l:extension
     return l:jupytext_file
 endfunction
