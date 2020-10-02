@@ -160,7 +160,7 @@ endif
 if exists('g:jupytext_fmt')
     " If format contains a semicolon split and infer style. This is mainly
     " for backwards compatibility.
-    
+
     " If not -1 we have found a semicolon
     if !(stridx(g:jupytext_fmt, ":") == -1)
         let [s:lang_, s:style_] = split(g:jupytext_fmt, ":")
@@ -172,7 +172,6 @@ if exists('g:jupytext_fmt')
     endif
 else
     let g:jupytext_fmt = "md"
-    let 
 endif
 
 if !exists('g:jupytext_filetype_map')
@@ -180,13 +179,20 @@ if !exists('g:jupytext_filetype_map')
 else
     " Can't be too straightforward for backwards compatibility
     let g:jupytext_filetype_map_ = s:jupytext_filetype_map
-     " remap the ft field for specific language
+     " remap the ft field for specific languages
      for pkey in keys(g:jupytext_filetype_map)
-         let g:jupytext_filetype_map_[pkey]['ft'] = get(g:jupytext_filetype_map, pkey)
+         " Some users may have used a jupytext_filetype_map with keys
+         " that combine language and format. For them we extract the
+         " language part.
+         if !(stridx(pkey, ":") == -1)
+             let [s:pkey_lang, s:d_] = split(pkey, ":")
+         else
+             let s:pkey_lang = pkey
+         endif
+         let g:jupytext_filetype_map_[s:pkey_lang]['ft'] = get(g:jupytext_filetype_map, pkey)
      endfor
      let g:jupytext_filetype_map = g:jupytext_filetype_map_
 endif
-
 
 if !exists('g:jupytext_to_ipynb_opts')
     let g:jupytext_to_ipynb_opts = '--to=ipynb --update'
