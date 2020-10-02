@@ -47,6 +47,10 @@ The plugin has the following settings. If you want to override the default value
 
     The format to which to convert the `ipynb` data. This can be any format that the `jupytext` utility accepts for its `--to` parameter (see `jupytext --help`), except for `'notebook'` and `'ipynb'`.
 
+*   `let g:jupytext_style = ''`
+
+    The jupytext output format generated when converting a notebook to plain text. Check `jupytext --help` to see the available output formats.
+
 *  `let g:jupytext_to_ipynb_opts = '--to=ipynb --update'`
 
    Command line options for the conversion from `g:jupytext_fmt` back to the notebook format
