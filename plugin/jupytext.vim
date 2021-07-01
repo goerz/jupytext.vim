@@ -352,7 +352,7 @@ function s:cleanup(jupytext_file, delete)
     call s:debugmsg("a:jupytext_file:".a:jupytext_file)
     if a:delete
         call s:debugmsg("deleting ".fnameescape(a:jupytext_file))
-        call delete(expand(fnameescape(a:jupytext_file)))
+        call delete(fnameescape(a:jupytext_file))
     endif
 endfunction
 
