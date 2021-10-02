@@ -250,7 +250,7 @@ function s:read_from_ipynb()
     au! jupytext_ipynb * <buffer>
     let l:filename = resolve(expand("<afile>:p"))
     let l:fileroot = fnamemodify(l:filename, ':r')
-    if get(s:jupytext_extension_map, g:jupytext_fmt, 'none') == 'none'
+    if get(g:jupytext_extension_map, g:jupytext_fmt, 'none') == 'none'
         echoerr "Invalid jupytext_fmt: ".g:jupytext_fmt
         return
     endif
@@ -293,7 +293,7 @@ function s:read_from_ipynb()
     silent execute l:register_write_cmd
 
     let l:ft = get(g:jupytext_filetype_map, g:jupytext_fmt,
-    \              s:jupytext_filetype_map[g:jupytext_fmt])
+    \              g:jupytext_filetype_map[g:jupytext_fmt])
     call s:debugmsg("filetype: ".l:ft)
     silent execute "setl fenc=utf-8 ft=".l:ft
     " In order to make :undo a no-op immediately after the buffer is read,
@@ -322,7 +322,7 @@ function s:get_jupytext_file(filename, fmt)
     " the fileroot without the folder
     let l:tail = fnamemodify(l:fileroot, ':t')
     " file extension from fmt
-    let l:extension = s:jupytext_extension_map[a:fmt]
+    let l:extension = g:jupytext_extension_map[a:fmt]
     let l:jupytext_file = l:fileroot . "." . l:extension
     return l:jupytext_file
 endfunction
