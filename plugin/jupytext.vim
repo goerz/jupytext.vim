@@ -158,6 +158,7 @@ let s:jupytext_filetype_map = {
 \   'sh:percent': 'sh',
 \   'py:sphinx': 'python',
 \   'py:sphinx-rst2md': 'python',
+\   'md:myst': 'markdown',
 \ }
 
 
@@ -200,6 +201,7 @@ let s:jupytext_extension_map = {
 \   'sh:percent': 'sh',
 \   'py:sphinx': 'py',
 \   'py:sphinx-rst2md': 'py',
+\   'md:myst': 'md',
 \ }
 
 
