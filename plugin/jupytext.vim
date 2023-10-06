@@ -119,7 +119,7 @@ if exists("loaded_jupytext") || &cp || exists("#BufReadCmd#*.ipynb")
 endif
 
 
-" for all the formates that jupytext takes for --to, the filetype that vim
+" for all the formats that jupytext takes for --to, the filetype that vim
 " should use (this determines syntax highlighting)
 let s:jupytext_filetype_map = {
 \   'rmarkdown': 'rmarkdown',
@@ -164,7 +164,7 @@ let s:jupytext_filetype_map = {
 \ }
 
 
-" for all the formates that jupytext takes for --to, the file extension that
+" for all the formats that jupytext takes for --to, the file extension that
 " should be used for the linked file
 let s:jupytext_extension_map = {
 \   'rmarkdown': 'Rmd',
